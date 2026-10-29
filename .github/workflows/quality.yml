@@ -1,0 +1,39 @@
+name: quality
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  workshop-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:contracts
+      - run: npm run manifest:check
+      - run: npm run doctor
+      - run: npm run test:smoke
+      - run: npm run test:current
+      - run: npm run probe -- --scenario SC-04 --fault F-01
+      - run: npm run probe -- --scenario SC-06 --fault F-02
+      - run: npm run probe -- --scenario SC-07 --fault F-03
+      - run: npm run probe -- --scenario SC-08 --fault F-04
+      - run: npm run test:release -- --workers 4 --repeat 5
+      - name: Preserve execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualitycart-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14

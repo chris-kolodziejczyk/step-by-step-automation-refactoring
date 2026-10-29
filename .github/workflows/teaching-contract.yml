@@ -1,0 +1,29 @@
+name: teaching-contract
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  starter-and-runner-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:starter-contract
+      - run: npm run test:ci-contract
+      - name: Preserve teaching evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teaching-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14

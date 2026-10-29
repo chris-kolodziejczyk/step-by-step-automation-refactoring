@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "composition": "Apply start, then each overlay up to the selected checkpoint. Overlay paths are relative to the project root. No deletions required.",
+  "order": [
+    "start",
+    "after-lab02",
+    "after-lab03",
+    "after-lab04",
+    "after-lab05",
+    "after-lab06",
+    "after-lab07",
+    "reference-final"
+  ]
+}

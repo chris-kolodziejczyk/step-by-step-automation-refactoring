@@ -1,0 +1,34 @@
+{
+  "name": "testwarez-qualitycart-refactoring",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TestWarez 2026: refaktoryzacja automatyzacji krok po kroku",
+  "engines": { "node": ">=24 <27" },
+  "scripts": {
+    "start": "node app/server.mjs",
+    "doctor": "node scripts/workshop.mjs doctor",
+    "test": "npm run test:current",
+    "test:smoke": "node scripts/workshop.mjs smoke",
+    "test:current": "node scripts/workshop.mjs current",
+    "test:contracts": "node --test contracts/*.test.mjs scripts/*.test.mjs",
+    "test:release": "node scripts/workshop.mjs release",
+    "test:starter-contract": "node scripts/workshop.mjs starter-contract",
+    "test:ci-contract": "node scripts/workshop.mjs ci-contract",
+    "lint": "node scripts/lint.mjs",
+    "typecheck": "tsc --noEmit",
+    "manifest:check": "node scripts/workshop.mjs manifest",
+    "lab": "node scripts/workshop.mjs lab",
+    "probe": "node scripts/workshop.mjs probe",
+    "matrix": "node scripts/workshop.mjs matrix",
+    "baseline": "node scripts/workshop.mjs baseline",
+    "demo:sync": "node scripts/workshop.mjs demo",
+    "migration:compare": "node scripts/workshop.mjs migration",
+    "report": "node scripts/workshop.mjs report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  }
+}

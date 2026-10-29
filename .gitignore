@@ -147,3 +147,13 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Generated workshop evidence, snapshots and local browser state
+evidence/
+.workshop-tmp/
+checkpoints/.validation/
+artifacts/
+playwright-report/
+test-results/
+**/storage-state*.json
+**/.auth/

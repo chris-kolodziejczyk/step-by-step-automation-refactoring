@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QualityCart · TestWarez 2026</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/">Quality<span>Cart</span><span class="brand-mark">QC</span></a><div class="workshop-label">TESTWAREZ 2026 <span>Laboratorium refaktoryzacji</span></div></header>
+  <main>
+    <section class="intro"><p class="eyebrow">MAŁA DOMENA. WYRAŹNY KONTRAKT.</p><h1>Dobry test zaczyna się<br>od konkretnego zachowania.</h1><p>Sklep warsztatowy z lokalnymi danymi. Książki, kubki i osiem scenariuszy, które warto zachować podczas refaktoryzacji.</p></section>
+    <div id="alert" role="alert" hidden></div>
+    <section id="login-panel" class="panel login-panel">
+      <div><p class="eyebrow">ZACZNIJ TUTAJ</p><h2>Zaloguj się do sklepu</h2><p>Każdy test korzysta z własnej przestrzeni danych.</p><div id="manual-setup" hidden><p>Otwierasz sklep ręcznie? Utwórz przestrzeń demonstracyjną.</p><button id="new-workspace" class="secondary" type="button">Nowa przestrzeń</button></div><p class="credentials">Konto demonstracyjne<br><code>qa@example.test</code><br><code>Workshop123!</code></p></div>
+      <form id="login-form"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="username" required><label for="password">Hasło</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">Zaloguj</button></form>
+    </section>
+    <div id="shop" hidden>
+      <div class="session"><div><span class="dot"></span> Zalogowano jako <strong id="user-email"></strong></div><button id="logout" class="text-button" type="button">Wyloguj</button></div>
+      <div class="shop-grid"><section><div class="section-heading"><div><p class="eyebrow">KATALOG</p><h2>Przydatne w pracy QA</h2></div><span class="count">2 produkty</span></div><div id="catalog" class="catalog"></div></section>
+      <aside class="panel cart-panel"><p class="eyebrow">TWÓJ KOSZYK</p><h2>Podsumowanie</h2><div id="cart-items"></div><form id="coupon-form"><label for="coupon">Kupon</label><div class="coupon-row"><input id="coupon" data-testid="coupon-code" autocomplete="off" placeholder="np. SAVE10"><button data-testid="coupon-apply" type="submit">Zastosuj</button></div></form><div class="coupon-info"><span>Aktywny kupon</span><strong data-testid="coupon-active">Brak</strong></div><p data-testid="coupon-status" aria-live="polite">Gotowe</p><dl class="totals"><div><dt>Produkty</dt><dd data-testid="cart-subtotal">0,00 zł</dd></div><div><dt>Rabat</dt><dd data-testid="cart-discount">0,00 zł</dd></div><div class="grand-total"><dt>Razem</dt><dd data-testid="cart-total">0,00 zł</dd></div></dl><button data-testid="order-submit" id="order-submit" class="wide" type="button">Zamów</button></aside></div>
+      <section id="order" class="panel order-panel" hidden><p class="eyebrow">ZAPISANE ZAMÓWIENIE</p><h2>Dziękujemy za zamówienie</h2><p>Numer: <strong data-testid="order-number"></strong></p><div id="order-items"></div><div class="order-total">Razem <strong data-testid="order-total"></strong></div></section>
+    </div>
+  </main><footer><strong>QualityCart</strong><span>Dane syntetyczne · aplikacja lokalna · ceny w PLN</span><span>TestWarez 2026</span></footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
