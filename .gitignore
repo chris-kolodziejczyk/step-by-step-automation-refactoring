@@ -157,3 +157,7 @@ playwright-report/
 test-results/
 **/storage-state*.json
 **/.auth/
+
+# Local presentation files
+/docs/prezentacja/
+/docs/helpTR/
