@@ -2,6 +2,8 @@
 
 To zapis wykonanych sprawdzeń na Windows x64, Node.js 26.6.0, Playwright 1.64.1 i Chromium 156.0.8078.4. Nie jest wynikiem przyszłego uruchomienia na komputerze uczestnika. Oryginalne raporty są lokalnie w `evidence/`, a wybrane dowody w paczce dystrybucyjnej w `verification/`.
 
+Poniższy zapis dotyczy wcześniejszej wersji narzędzi. Rozwiązania referencyjne przeniesiono do lokalnego `trainer-private/checkpoints/`. Bieżące `lab verify LAB-06` i `LAB-07` sprawdzają kod uczestnika bez tych plików; wcześniejsze wyniki porównań wzorców nie są wynikiem tych nowych poleceń.
+
 | Sprawdzenie | Wynik |
 | --- | --- |
 | Czysta kopia: npm ci, doctor, smoke, normalny zestaw | instalacja poprawna, smoke wykonany, 8/8 scenariuszy |
@@ -24,3 +26,11 @@ To zapis wykonanych sprawdzeń na Windows x64, Node.js 26.6.0, Playwright 1.64.1
 Baseline `before` oraz `after` obejmuje po jednej osobnej rozgrzewce i pięć zachowanych prób. Zebrano wersje, commit/dirty state, zakres, profil, seed, workers i retry. W czasie części pomiarów trwały inne kontrole na tym samym komputerze. Te czasy służą sprawdzeniu działania narzędzia i nie uzasadniają deklaracji poprawy wydajności. Przejście na przygotowanie danych przez API jest dodatkową zmianą ścieżki setupu, wymagającą interpretacji.
 
 Workflow GitHub Actions jest przygotowany, lecz nie został uruchomiony na GitHubie. Ochronę gałęzi ustawia właściciel repozytorium. Nie wykonano pełnego dnia próbnego z grupą ani instalacji na każdym systemie uczestników. Przed konferencją pozostaje próba prowadzenia, projektor i przygotowanie zależności oraz przeglądarki do pracy offline, zgodnie z instrukcją trenera.
+
+## Sprawdzenie przeniesienia rozwiązań — 2 listopada 2026
+
+Lokalnie przeszły lint, typecheck oraz 21 testów kontraktowych i regresyjnych. W oddzielnej kopii z kodem po LAB-06, bez `trainer-private`, `docs/helpTR` i `docs/prezentacja`, przeszły `lab verify LAB-06` i `LAB-07`. Kontrakt CI odrzucił `.only` oraz celową awarię na kopiach tego kodu. Po kontrolowanym osłabieniu SC-04 w tej kopii LAB-07 zwrócił niepowodzenie z F-01 `MISSING_DETECTION`; po eksperymencie kod kopii przywrócono.
+
+`matrix --full --workers 4 --repeat 1` w tej samej kopii wykonało osiem ID w czterech profilach: 32/32 poprawnie. To pojedyncza próba profili, a nie pełny pięciokrotny przebieg workflow. Lokalne `test:ai-reference` zachowało oczekiwane wyniki unsafe/safe na prywatnych wzorcach. Sprawdzono też identyczność 22 przeniesionych plików z dotychczasową wersją oraz brak ich śledzenia w `trainer-private`. Workflow GitHub Actions nie został uruchomiony w ramach tej zmiany.
+
+Raporty tej próby są lokalnie w `.workshop-tmp/participant-validation-20261102/evidence/` oraz `evidence/ai/`; nie są dołączone do repozytorium uczestnika.

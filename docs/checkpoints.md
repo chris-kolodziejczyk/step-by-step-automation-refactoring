@@ -1,13 +1,17 @@
-# Checkpointy i powrót do ćwiczenia
+# Checkpointy i stany ćwiczeń
+
+Repozytorium uczestnika zawiera tylko źródła `start` i `after-lab02`. Rozwiązania `after-lab03`–`after-lab07` oraz `reference-final` są u trenera w ignorowanym `trainer-private/checkpoints/`. Karty LAB opisują nazwy kolejnych stanów: dochodzisz do nich, wykonując zadania we własnym projekcie. Do uruchamiania i weryfikacji własnej pracy nie są potrzebne prywatne rozwiązania.
 
 Checkpoint to źródła z kumulatywnie nałożonym rozwiązaniem wcześniejszych zadań. Powstaje w **nowym katalogu**. Polecenie nie resetuje bieżącego drzewa, nie przełącza gałęzi i nie nadpisuje pracy.
 
 ```sh
 npm run lab -- list
-npm run lab -- checkpoint after-lab03 --dest ../refactoring-lab04
+npm run lab -- checkpoint start --dest ../refactoring-start
 ```
 
 Katalog docelowy nie może istnieć. W nowej kopii wykonaj `npm ci`, `npm run doctor` oraz sprawdzenia właściwego etapu. Sam checkpoint nie jest pełnym środowiskiem offline.
+
+`lab list` pokazuje nazwy etapów, również prywatnych. Utworzenie późniejszego checkpointu wymaga wszystkich jego nakładek. Uczestnik bez plików trenera otrzyma komunikat o niedostępnym stanie. Trener może nadal tworzyć pełne stany z własnych plików; kopia nie zawiera całego katalogu `trainer-private`, prywatnej instrukcji ani prezentacji. Sposób udostępniania takich kopii do dogonienia grupy pozostaje do osobnego ustalenia — nie dodano automatycznego pobierania, importu ani dystrybucji.
 
 | Nazwa | Stan | Dołączenie do |
 | --- | --- | --- |
@@ -34,6 +38,6 @@ Prezentacja proponuje `workshop/v0.1/start`, `workshop/v0.1/after-lab02` itd. Me
 git tag --list "workshop/v0.1/*"
 ```
 
-Jeśli właściciel przygotował prawdziwe i zweryfikowane tagi, można utworzyć osobne worktree z wolną nazwą gałęzi i katalogu. Jeśli tagów brak, użyj `npm run lab -- checkpoint ...`.
+Jeśli właściciel przygotował prawdziwe i zweryfikowane tagi, można utworzyć osobne worktree z wolną nazwą gałęzi i katalogu. Udostępnienie tagu z rozwiązaniem udostępnia również jego kod. Bez tagów materializacja wymaga lokalnie dostępnych nakładek; w repozytorium uczestnika dostępne są `start` i `after-lab02`.
 
 Po dołączeniu sprawdź osiem ID, normalny zestaw i sondę zadania. Do LAB-04 zależność SC-03 → SC-04 pozostaje znanym etapem. Po LAB-04 sprawdź SC-04 samodzielnie, obie kolejności i współbieżność.

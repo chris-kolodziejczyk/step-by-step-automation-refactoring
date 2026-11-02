@@ -161,3 +161,6 @@ test-results/
 # Local presentation files
 /docs/prezentacja/
 /docs/helpTR/
+
+# Local trainer solutions
+/trainer-private/

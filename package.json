@@ -15,6 +15,7 @@
     "test:release": "node scripts/workshop.mjs release",
     "test:starter-contract": "node scripts/workshop.mjs starter-contract",
     "test:ci-contract": "node scripts/workshop.mjs ci-contract",
+    "test:ai-reference": "node scripts/workshop.mjs ai-reference",
     "lint": "node scripts/lint.mjs",
     "typecheck": "tsc --noEmit",
     "manifest:check": "node scripts/workshop.mjs manifest",

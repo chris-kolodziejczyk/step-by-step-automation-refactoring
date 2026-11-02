@@ -1,6 +1,6 @@
 # Propozycje do oceny
 
-Oba diffy są **autorskimi przykładami dydaktycznymi** przygotowanymi do tego warsztatu. Nie są zapisem odpowiedzi konkretnego modelu. Stosują się do kumulatywnego checkpointu `after-lab06`; testuj je w osobnych nowych kopiach.
+Oba diffy są **autorskimi przykładami dydaktycznymi** przygotowanymi do tego warsztatu. Nie są zapisem odpowiedzi konkretnego modelu. Napisano je dla przykładowej struktury po LAB-06. Oceniaj je i testuj w osobnych kopiach swojego projektu po LAB-06. Sprawdź stosowalność przez `git apply --check`; jeżeli Twoje nazwy lub układ się różnią, po review dopasuj zmiany ręcznie. Nie jest potrzebny checkpoint trenera.
 
 ## Unsafe: pozorna poprawa
 
@@ -26,3 +26,5 @@ npm run probe -- --scenario SC-04 --fault F-01
 ```
 
 Unsafe sprawdzaj w drugiej kopii, zastępując nazwę patcha. Nie stosuj obu po kolei do tego samego pliku. Do zapisania wyniku służy [LAB-07-ai-review.md](../labs/answers/LAB-07-ai-review.md).
+
+`npm run lab -- verify LAB-07` sprawdza bieżący aktywny zestaw oraz normalny SC-04 i detekcję F-01. Nie uruchamia automatycznie powyższych diffów. Review i porównanie raportów unsafe/safe oceniasz z trenerem.

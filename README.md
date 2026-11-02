@@ -33,7 +33,6 @@ Starter ma osiem aktywnych scenariuszy. Normalny przebieg z jednym workerem i SC
 - [LAB-06: migracja i CI](docs/labs/LAB-06.md)
 - [LAB-07: przegląd propozycji AI](docs/labs/LAB-07.md)
 - [LAB-08: mały PR i peer review](docs/labs/LAB-08.md)
-- [Instrukcja prowadzącego i próby generalnej](docs/trainer.md)
 - [Checkpointy i powrót do ćwiczenia](docs/checkpoints.md)
 - [API aplikacji i kontrola danych](docs/api.md)
 - [Czytanie raportów i ograniczenia pomiaru](docs/evidence.md)
@@ -48,6 +47,7 @@ npm run lab -- verify LAB-00
 npm run test:current -- --scenario SC-04
 npm run test:current -- --profile combined --workers 4 --repeat 5
 npm run matrix -- --repeat 5 --workers 4
+npm run matrix -- --full --repeat 5 --workers 4
 npm run probe -- --scenario SC-04 --fault F-01
 npm run probe -- --scenario SC-07 --fault F-03
 npm run demo:sync
@@ -55,31 +55,33 @@ npm run baseline -- capture --label before --repetitions 5
 npm run baseline -- capture --label after --repetitions 5
 npm run baseline -- compare --before evidence/before --after evidence/after
 npm run manifest:check
-npm run migration:compare
 npm run lint
 npm run typecheck
 npm run test:contracts
 npm run test:starter-contract
 npm run test:ci-contract
-npm run test:release
 npm run report
 ```
 
 Raporty i ślady są zapisywane lokalnie w `evidence/runs/<timestamp-label>/`; polecenie wypisuje ścieżkę bieżącego wyniku. `npm run report` otwiera ostatni raport HTML. Baseline zachowuje nieudane próby i osobno oznacza rozgrzewkę; istniejącego label nie nadpisuje. Wynik sondy jest sukcesem tylko wtedy, gdy normalny scenariusz przechodzi, defekt rzeczywiście został wykonany, a test zawodzi na właściwej wyroczni.
 
-`test:release` sprawdza materializowane **reference-final**, czyli materiały referencyjne. Bieżące własne rozwiązanie weryfikuj przez `test:current`, `matrix`, `probe` oraz `lab verify`. Sprawdzenia automatyczne nie zastępują notatki, minimalnego diffu i peer review.
+`test:current`, `matrix`, `probe` oraz `lab verify` bez `--checkpoint` sprawdzają Twój bieżący kod. `matrix` domyślnie obejmuje SC-03/04, a `--full` wszystkie osiem ID. Sprawdzenia automatyczne nie zastępują notatki, minimalnego diffu i peer review.
 
-`npm run lab -- verify LAB-04 --checkpoint after-lab04 --workers 4 --repeat 5` sprawdza wskazaną wersję na nowej kopii. Bez `--checkpoint` weryfikujesz własny bieżący kod. Do pomiaru wzorca możesz użyć `npm run baseline -- capture --label after-reference --checkpoint reference-final --repetitions 5`; własne rozwiązanie mierz bez tej opcji.
+Po zadaniu uruchom np. `npm run lab -- verify LAB-06` lub `npm run lab -- verify LAB-07`. Nie wymagają rozwiązań trenera. LAB-06 sprawdza aktywną migrację SC-04, normalny zestaw, F-01 i odrzucenie celowych błędów na kopiach Twojego kodu. LAB-07 sprawdza normalny zestaw i F-01 na Twojej bezpiecznej wersji; review diffów oraz dowody eksperymentu unsafe/safe omawiasz z trenerem. Baseline własnego rozwiązania wykonuj bez `--checkpoint`.
+
+Rozwiązania po LAB-03–08 są lokalnie u trenera w ignorowanym `trainer-private/checkpoints/`. `test:release`, `migration:compare` i `test:ai-reference` służą trenerowi do sprawdzania wzorców i wymagają tych plików. Zdalny workflow jakości sprawdza kod z repozytorium, bez prywatnych rozwiązań.
+
+Pełna macierz na starterze może wykazać celowe problemy selektorów i synchronizacji, naprawiane w LAB-03. Workflow jakości wymaga poprawnego własnego kodu we wszystkich profilach; oddzielny workflow `teaching-contract` sprawdza opisane zachowanie materiału startowego.
 
 ## Checkpointy
 
 Zachowaj własną pracę, następnie utwórz **nowy, nieistniejący katalog**:
 
 ```sh
-npm run lab -- checkpoint after-lab03 --dest ../refactoring-lab04
+npm run lab -- checkpoint start --dest ../refactoring-start
 ```
 
-W nowej kopii wykonaj `npm ci`, `npm run doctor` i sprawdzenia etapu. Mechanizm kopiuje źródła i kumulatywnie nakłada rozwiązania. Nazwy odpowiadają planowanym tagom `workshop/v0.1/...`; nie zakładamy istnienia tych tagów w Git. Szczegóły: [checkpointy](docs/checkpoints.md).
+W nowej kopii wykonaj `npm ci`, `npm run doctor` i sprawdzenia etapu. Repozytorium uczestnika zawiera `start` i `after-lab02`. Nazwy późniejszych etapów w kartach LAB opisują stan po Twoich wcześniejszych zadaniach; ich wzorce są prywatne. Kontynuuj pracę we własnym katalogu. Sposób przekazywania późniejszych checkpointów przez trenera wymaga osobnego ustalenia. Szczegóły: [checkpointy](docs/checkpoints.md).
 
 ## Pochodzenie i zakres
 

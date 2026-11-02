@@ -28,7 +28,7 @@ jobs:
       - run: npm run probe -- --scenario SC-06 --fault F-02
       - run: npm run probe -- --scenario SC-07 --fault F-03
       - run: npm run probe -- --scenario SC-08 --fault F-04
-      - run: npm run test:release -- --workers 4 --repeat 5
+      - run: npm run matrix -- --full --workers 4 --repeat 5
       - name: Preserve execution evidence
         if: always()
         uses: actions/upload-artifact@v4

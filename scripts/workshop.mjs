@@ -1,12 +1,14 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { access, cp, mkdir, readFile, readdir, symlink, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { SCENARIOS, FAULTS, classifyProbe, comparable, validateExecution } from './validation.mjs';
+import { copyProject, materializeCheckpoint } from './workspaces.mjs';
+import { injectCiFailure } from './ci-contract.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 process.chdir(ROOT);
@@ -120,23 +122,7 @@ async function probe(scenario = flag('scenario', 'SC-04'), fault = flag('fault',
 }
 
 async function materialize(name, destination, { dependencies = false } = {}) {
-  name = name.replace('workshop/v0.1/', '');
-  const catalog = (await json('checkpoints/catalog.json')).order;
-  if (!catalog.includes(name)) throw new Error(`Nieznany checkpoint ${name}`);
-  const target = path.resolve(ROOT, destination);
-  const fromRoot = path.relative(ROOT, target);
-  if (!fromRoot || (!fromRoot.startsWith(`..${path.sep}`) && !path.isAbsolute(fromRoot) && fromRoot.split(path.sep)[0] !== '.workshop-tmp')) throw new Error('Wybierz nowy katalog obok repozytorium, np. ../qualitycart-lab04. Kopia wewnątrz źródła nie jest dozwolona.');
-  if (existsSync(target)) throw new Error(`Katalog już istnieje: ${target}. Wybierz nowy, aby zachować swoją pracę.`);
-  await mkdir(target, { recursive: true });
-  for (const entry of await readdir(ROOT, { withFileTypes: true })) {
-    if (['.git', 'node_modules', 'evidence', '.workshop-tmp', 'artifacts', 'tests', 'workshop', 'archive'].includes(entry.name)) continue;
-    await cp(path.join(ROOT, entry.name), path.join(target, entry.name), { recursive: true, filter: src => !src.includes(`${path.sep}.validation`) });
-  }
-  for (const stage of catalog.slice(0, catalog.indexOf(name) + 1)) {
-    const overlay = path.join(ROOT, 'checkpoints', stage);
-    for (const entry of await readdir(overlay)) await cp(path.join(overlay, entry), path.join(target, entry), { recursive: true, force: true });
-  }
-  if (dependencies) await symlink(path.join(ROOT, 'node_modules'), path.join(target, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
+  const target = await materializeCheckpoint(ROOT, name, destination, { dependencies });
   await manifestCheck(target);
   return target;
 }
@@ -307,20 +293,24 @@ async function starterContract() {
   return passed;
 }
 
-async function ciContract() {
+async function ciContract({ baseline } = {}) {
+  baseline ??= await run({ label: 'ci-contract-baseline' });
+  if (!baseline.passed) {
+    await save(`evidence/ci-contract/${stamp()}.json`, { passed: false, baseline: relative(baseline.dir), outcomes: [], note: 'Bieżący zestaw nie przechodzi. Najpierw napraw baseline; nie zaliczono prób odrzucenia wadliwego kodu.' });
+    return false;
+  }
   const outcomes = [];
   for (const variant of ['only', 'assertion']) {
-    const root = await materialize('reference-final', `.workshop-tmp/ci-${variant}-${stamp()}`, { dependencies: true });
-    const file = path.join(root, 'tests/legacy/authentication.spec.ts');
-    let source = await readFile(file, 'utf8');
-    source = variant === 'only' ? source.replace("test('[SC-01]", "test.only('[SC-01]") : source.replace("  await page.goto('/');", "  expect(1, 'CI-CONTRACT: deliberate failure').toBe(2);\n  await page.goto('/');");
-    await writeFile(file, source);
+    const root = await copyProject(executionRoot, path.join(ROOT, `.workshop-tmp/ci-${variant}-${stamp()}`), { dependencies: true });
+    const manifest = await manifestCheck(root);
+    const file = path.join(root, manifest.find(entry => entry.id === 'SC-01').file);
+    await writeFile(file, injectCiFailure(await readFile(file, 'utf8'), variant));
     const runResult = await run({ root, label: `ci-contract-${variant}` });
     const proven = runResult.exitCode === 1 && (variant === 'only' ? runResult.reportData?.globalErrors.some(e => /only.*forbid|forbid.*only/i.test(e.message || '')) : runResult.reportData?.results.some(r => r.id === 'SC-01' && r.status === 'failed' && r.errors.some(e => e.message.includes('CI-CONTRACT: deliberate failure'))));
     outcomes.push({ variant, rejected: proven, directory: relative(runResult.dir) });
   }
   const passed = outcomes.every(r => r.rejected);
-  await save(`evidence/ci-contract/${stamp()}.json`, { passed, outcomes, note: 'Celowe zmiany powstały wyłącznie na kontrolowanych kopiach.' });
+  await save(`evidence/ci-contract/${stamp()}.json`, { passed, outcomes, note: 'Celowe zmiany powstały wyłącznie na kopiach bieżącego kodu. Nie użyto checkpointów referencyjnych.' });
   return passed;
 }
 
@@ -331,12 +321,17 @@ async function verifyLab(lab) {
   else if (lab === 'LAB-03') passed = await matrix() && (await probe()).exitCode === 0;
   else if (lab === 'LAB-04') passed = await isolation() && (await probe()).exitCode === 0;
   else if (lab === 'LAB-05') passed = (await run()).passed && (await probe('SC-06', 'F-02')).exitCode === 0;
-  else if (lab === 'LAB-06') passed = (await run()).passed && await migration() && await ciContract();
-  else if (lab === 'LAB-07') passed = (await run()).passed && (await probe()).exitCode === 0 && await aiContract();
+  else if (lab === 'LAB-06') {
+    const current = await run();
+    const migrated = current.manifest.find(entry => entry.id === 'SC-04').implementation === 'refactored';
+    if (!migrated) console.error('LAB-06: manifest musi aktywować nową implementację refactored dla SC-04.');
+    passed = current.passed && migrated && (await probe()).exitCode === 0 && await ciContract({ baseline: current });
+  }
+  else if (lab === 'LAB-07') passed = (await run()).passed && (await probe()).exitCode === 0;
   else if (lab === 'LAB-08') passed = (await run({ ids: ['SC-07'] })).passed && (await probe('SC-07', 'F-03')).exitCode === 0 && (await run()).passed;
   else if (lab === 'LAB-01') { await manifestCheck(); passed = (await run()).passed; }
   else passed = (await run()).passed && (await probe()).exitCode === 0;
-  await save(`evidence/labs/${lab}-${stamp()}.json`, { lab, automatedChecksPassed: passed, note: 'Warunki pisemne, diff i peer review ocenia człowiek według karty LAB.' });
+  await save(`evidence/labs/${lab}-${stamp()}.json`, { lab, automatedChecksPassed: passed, sourceDirectory: relative(executionRoot) || '.', note: 'Sprawdzono bieżący kod. Warunki pisemne, dowody przed/po, review diffów AI i peer review ocenia człowiek według karty LAB.' });
   return passed;
 }
 
@@ -354,12 +349,13 @@ async function main() {
   if (command === 'manifest') { await manifestCheck(); console.log('Manifest: osiem ID, pliki i implementacje zgodne. Uruchomienie testów sprawdza faktyczne wykonanie.'); return true; }
   if (command === 'current' || command === 'smoke') return (await run({ ids: flag('scenario', '').split(',').filter(Boolean).length ? flag('scenario').split(',') : SCENARIOS, repeat: numberFlag('repeat', 1), smoke: command === 'smoke', label: command })).passed;
   if (command === 'probe') return (await probe()).exitCode;
-  if (command === 'matrix') return matrix();
+  if (command === 'matrix') return matrix({ full: args.includes('--full') });
   if (command === 'baseline') return baseline();
   if (command === 'demo') return demo();
   if (command === 'migration') return migration();
   if (command === 'starter-contract') return starterContract();
   if (command === 'ci-contract') return ciContract();
+  if (command === 'ai-reference') return aiContract();
   if (command === 'lab') {
     if (args[0] === 'list') { console.log((await json('checkpoints/catalog.json')).order.join('\n')); return true; }
     if (args[0] === 'checkpoint') {

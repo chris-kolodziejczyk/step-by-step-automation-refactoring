@@ -25,4 +25,6 @@ Sonda wymaga normalnego sukcesu, faktycznej aktywacji defektu i właściwej wyro
 
 `lab verify` sprawdza automatyczną część zadania. Nie ocenia jakości diagnozy, minimalności diffu, notatki, samodzielności pracy ani peer review. Wynik automatu nie zastępuje karty LAB.
 
-`test:release` materializuje **reference-final**, a następnie sprawdza cztery profile i F-01–F-04. To próba materiałów referencyjnych. Zmiany w bieżącym drzewie uczestnika sprawdzaj osobno przez `test:current`, `matrix`, `probe` i `lab verify`.
+Bez `--checkpoint` sprawdzany jest Twój bieżący projekt. LAB-06 weryfikuje aktywne `refactored` SC-04, normalny zestaw, F-01 i kontrakt CI na kopiach Twojego kodu. LAB-07 weryfikuje normalny zestaw i F-01, a review oraz eksperymenty unsafe/safe dokumentujesz samodzielnie. Obie weryfikacje działają bez prywatnych checkpointów. `test:ci-contract` najpierw wymaga poprawnego bieżącego zestawu, a następnie sprawdza odrzucenie `.only` i celowej awarii w jego osobnych kopiach.
+
+`test:release` materializuje prywatne **reference-final**, a następnie sprawdza cztery profile i F-01–F-04. To lokalna próba materiałów trenera, wymagająca `trainer-private/checkpoints/`. Również `migration:compare` i `test:ai-reference` sprawdzają wzorce trenera. Zmiany w bieżącym drzewie uczestnika sprawdzaj przez `test:current`, `matrix`, `probe` i `lab verify`. `matrix --full` obejmuje wszystkie osiem ID; zdalny workflow jakości używa tego trybu zamiast prywatnego finału.
